@@ -298,7 +298,7 @@ class MainWindow(QMainWindow):
                 self.photo.clear()
                 print("b")
                 plt.imshow(img_grey, cmap='gray')
-                plt.savefig('tmp_files/tmp_grey.png', dpi=100)
+                plt.savefig('tmp_files/tmp_grey.png', dpi=1000)
 
                 pixmap = QPixmap("tmp_files/tmp_grey.png")
                 pixmap_resized = pixmap.scaled(650, 650, QtCore.Qt.KeepAspectRatio)
