@@ -9,7 +9,7 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QFileDialog, \
-    QGroupBox, QWidget, QGridLayout, QRadioButton, QSlider
+    QGroupBox, QWidget, QGridLayout, QRadioButton, QSlider, QTabWidget, QSpinBox
 
 
 class MainWindow(QMainWindow):
@@ -64,6 +64,16 @@ class MainWindow(QMainWindow):
         sub.setGeometry(self.left, self.top, self.width, self.height)
         layout = QGridLayout(self)
 
+        self.tabs = QTabWidget()
+        self.color_tab = QWidget()
+        self.thresh = QWidget()
+        self.tabs.resize(300, 700)
+
+        self.tabs.addTab(self.color_tab, "Color_tab")
+        self.tabs.addTab(self.thresh, "Threshold")
+        self.color_tab.layout = QGridLayout()
+        self.thresh.layout = QGridLayout()
+
         logo_img = QLabel(self)
         self.logo_map = QPixmap('./Assets/logo.png')
         self.logo_resize = self.logo_map.scaled(450, 150, Qt.KeepAspectRatio)
@@ -90,6 +100,7 @@ class MainWindow(QMainWindow):
 
         self.photo = QLabel(self)
 
+    # region tab 1
         # region Grey_generate
         grey_group = QGroupBox(self)
         self.Man_select_1 = QRadioButton("Grey", self)
@@ -199,7 +210,62 @@ class MainWindow(QMainWindow):
         self.color_generate.clicked.connect(self.generate_color)
         self.color_generate.setFixedSize(150, 50)
         # endregion
+# endregion
 
+    # region tab2
+        # region Threshold settings
+
+        tab2_title = QLabel("Threshold Replacement", self)
+        value_replace_title = QLabel("Value to Replace", self)
+        new_value_title = QLabel("New Value", self)
+        self.num_replace = QLabel("0", self)
+        self.num_new = QLabel("255", self)
+        num_pixels = QLabel("Pixels Affected", self)
+
+        self.pixels = QSpinBox()
+        self.pixels.setValue(4)
+
+        self.replace_grey = QSlider(Qt.Horizontal)
+        self.replace_grey.setGeometry(30, 40, 200, 30)
+        self.replace_grey.setMaximum(255)
+        self.replace_grey.setMinimum(0)
+        self.replace_grey.setValue(0)
+        self.replace_grey.valueChanged.connect(self.thresh_value)
+        self.replace_grey.setSingleStep(1)
+
+        self.new_grey = QSlider(Qt.Horizontal)
+        self.new_grey.setGeometry(30, 40, 200, 30)
+        self.new_grey.setMaximum(255)
+        self.new_grey.setMinimum(0)
+        self.new_grey.setValue(255)
+        self.new_grey.valueChanged.connect(self.thresh_value)
+        self.new_grey.setSingleStep(1)
+
+        self.run_threshold = QPushButton("Generate change", self)
+        self.run_threshold.setFixedSize(300, 50)
+        self.run_threshold.clicked.connect(self.generate_threshold)
+        # endregion
+
+        # region Threshold Graph Generation
+        self.gen_graph = QPushButton("Generate Graph", self)
+        self.gen_graph.setFixedSize(300, 50)
+        self.gen_graph.clicked.connect(self.generate_graph)
+
+        self.inspect_graph = QPushButton("Inspect", self)
+        self.inspect_graph.setFixedSize(150, 50)
+        self.inspect_graph.clicked.connect(self.inspect_graph_func)
+
+        self.save_graph = QPushButton("Save Graph", self)
+        self.save_graph.setFixedSize(150, 50)
+        self.save_graph.clicked.connect(self.save_graph_func)
+
+        self.graph = QLabel(self)
+
+        thresh_group = QGroupBox(self)
+        graph_group = QGroupBox(self)
+        # endregion
+
+    # endregion
         space = QLabel()
 
         layout.addWidget(space, 0, 0, 72, 0)  # left side
@@ -215,45 +281,74 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(self.photo, 2, 1, 72, 45, Qt.AlignCenter)
 
-        layout.addWidget(grey_group, 1, 50, 15, 50)
-        layout.addWidget(self.Man_select_1, 0, 52, 3, 5)
-        layout.addWidget(self.slide_value, 2, 87, 1, 10)
-        layout.addWidget(self.slide_value2, 3, 87, 1, 10)
-        layout.addWidget(grey_high_label, 3, 52, 1, 10)
-        layout.addWidget(grey_low_label, 2, 52, 1, 10)
-        layout.addWidget(self.grey_generate, 0, 67, 3, 20)
-        layout.addWidget(self.grey_slider_low, 2, 52, 3, 40)
-        layout.addWidget(self.grey_slider_high, 4, 52, 2, 40)
+        # region tab1 layout
+        self.color_tab.layout.addWidget(grey_group, 1, 5, 15, 5)
+        self.color_tab.layout.addWidget(self.Man_select_1, 1, 5, 4, 1)
+        self.color_tab.layout.addWidget(self.grey_generate, 1, 8)
+        self.color_tab.layout.addWidget(self.slide_value, 6, 8, 2, 1)
+        self.color_tab.layout.addWidget(grey_low_label, 6, 5, 2, 1)
+        self.color_tab.layout.addWidget(self.grey_slider_low, 8, 5, 2, 5)
+        self.color_tab.layout.addWidget(self.slide_value2, 11, 8, 2, 1)
+        self.color_tab.layout.addWidget(grey_high_label, 11, 5, 2, 1)
+        self.color_tab.layout.addWidget(self.grey_slider_high, 13, 5, 2, 5)
 
-        layout.addWidget(color_group, 19, 50, 40, 50)
-        layout.addWidget(self.Man_select_2, 20, 52, 4, 10)
+        self.color_tab.layout.addWidget(color_group, 20, 5, 40, 5)
+        self.color_tab.layout.addWidget(self.Man_select_2, 20, 5, 4, 1)
 
-        layout.addWidget(red_label_low, 26, 52, 1, 20)
-        layout.addWidget(red_label_high, 31, 52, 1, 20)
-        layout.addWidget(blue_label_low, 36, 52, 1, 20)
-        layout.addWidget(blue_label_high, 41, 52, 1, 20)
-        layout.addWidget(green_label_low, 46, 52, 1, 20)
-        layout.addWidget(green_label_high, 51, 52, 1, 20)
+        self.color_tab.layout.addWidget(red_label_low, 25, 5, 2, 2)
+        self.color_tab.layout.addWidget(red_label_high, 30, 5, 2, 2)
+        self.color_tab.layout.addWidget(blue_label_low, 35, 5, 2, 2)
+        self.color_tab.layout.addWidget(blue_label_high, 40, 5, 2, 2)
+        self.color_tab.layout.addWidget(green_label_low, 45, 5, 2, 2)
+        self.color_tab.layout.addWidget(green_label_high, 50, 5, 2, 2)
 
-        layout.addWidget(self.slider_red_low, 27, 52, 2, 40)
-        layout.addWidget(self.slider_red, 32, 52, 2, 40)
+        self.color_tab.layout.addWidget(self.slider_red_low, 27, 5, 2, 4)
+        self.color_tab.layout.addWidget(self.slider_red, 32, 5, 2, 4)
 
-        layout.addWidget(self.slider_green_low, 37, 52, 2, 40)
-        layout.addWidget(self.slider_green, 42, 52, 2, 40)
+        self.color_tab.layout.addWidget(self.slider_green_low, 37, 5, 2, 4)
+        self.color_tab.layout.addWidget(self.slider_green, 42, 5, 2, 4)
 
-        layout.addWidget(self.slider_blue_low, 47, 52, 2, 40)
-        layout.addWidget(self.slider_blue, 52, 52, 2, 40)
+        self.color_tab.layout.addWidget(self.slider_blue_low, 47, 5, 2, 4)
+        self.color_tab.layout.addWidget(self.slider_blue, 52, 5, 2, 4)
 
-        layout.addWidget(self.slide_value_red_low, 26, 87, 1, 10)
-        layout.addWidget(self.slide_value_red, 31, 87, 1, 10)
+        self.color_tab.layout.addWidget(self.slide_value_red_low, 25, 8, 2, 1)
+        self.color_tab.layout.addWidget(self.slide_value_red, 30, 8, 2, 1)
 
-        layout.addWidget(self.slide_value_green_low, 36, 87, 1, 10)
-        layout.addWidget(self.slide_value_green, 41, 87, 1, 10)
+        self.color_tab.layout.addWidget(self.slide_value_green_low, 35, 8, 2, 1)
+        self.color_tab.layout.addWidget(self.slide_value_green, 40, 8, 2, 1)
 
-        layout.addWidget(self.slide_value_blue_low, 46, 87, 1, 10)
-        layout.addWidget(self.slide_value_blue, 51, 87, 1, 10)
+        self.color_tab.layout.addWidget(self.slide_value_blue_low, 45, 8, 2, 1)
+        self.color_tab.layout.addWidget(self.slide_value_blue, 50, 8, 2, 1)
 
-        layout.addWidget(self.color_generate, 21, 67, 2, 20)
+        self.color_tab.layout.addWidget(self.color_generate, 21, 8, 2, 2)
+        # endregion
+
+        # region tab2 layout
+        self.thresh.layout.addWidget(thresh_group, 1, 1, 8, 6)
+        self.thresh.layout.addWidget(graph_group, 10, 1, 17, 6)
+        self.thresh.layout.addWidget(tab2_title, 1, 1)
+        self.thresh.layout.addWidget(value_replace_title, 3, 1)
+        self.thresh.layout.addWidget(new_value_title, 5, 1)
+        self.thresh.layout.addWidget(self.num_replace, 3, 5)
+        self.thresh.layout.addWidget(self.num_new, 5, 5)
+        self.thresh.layout.addWidget(num_pixels, 7, 1)
+        self.thresh.layout.addWidget(self.pixels, 7, 5)
+
+        self.thresh.layout.addWidget(self.replace_grey, 4, 1)
+        self.thresh.layout.addWidget(self.new_grey, 6, 1)
+        self.thresh.layout.addWidget(self.run_threshold, 8, 1)
+
+        self.thresh.layout.addWidget(self.gen_graph, 10, 1)
+        self.thresh.layout.addWidget(self.inspect_graph, 12, 1)
+        self.thresh.layout.addWidget(self.save_graph, 12, 2)
+        self.thresh.layout.addWidget(self.graph, 18, 1, 5, 4)
+
+
+        # endregion
+
+        layout.addWidget(self.tabs, 0, 40, 70, 65)
+        self.color_tab.setLayout(self.color_tab.layout)
+        self.thresh.setLayout(self.thresh.layout)
 
         sub.setLayout(layout)
         self.show()
@@ -265,6 +360,13 @@ class MainWindow(QMainWindow):
 
         value = self.grey_slider_low.value()
         self.slide_value.setText(str(value))
+
+    def thresh_value(self):
+        value = self.replace_grey.value()
+        self.num_replace.setText(str(value))
+
+        value = self.new_grey.value()
+        self.num_new.setText(str(value))
 
     def color_change_value(self):
         value = self.slider_red.value()
@@ -289,14 +391,12 @@ class MainWindow(QMainWindow):
         if self.Man_select_1.isChecked():
             if window.get_filename():
                 img_grey = np.array(Image.open(window.get_filename()).convert('L'))
-                print("a")
                 x = self.grey_slider_high.value()
                 y = self.grey_slider_low.value()
                 img_grey[img_grey >= x] = 255
                 img_grey[img_grey <= y] = 255
                 print(img_grey)
                 self.photo.clear()
-                print("b")
                 plt.imshow(img_grey, cmap='gray')
                 plt.savefig('tmp_files/tmp_grey.png', dpi=1000)
 
@@ -308,37 +408,90 @@ class MainWindow(QMainWindow):
 
     def generate_color(self):
         if self.Man_select_2.isChecked():
-            img = cv2.imread(window.get_filename())
-            blue = img[:, :, 0]
-            green = img[:, :, 1]
-            red = img[:, :, 2]
-            print(blue)
-            x = self.slider_blue.value()
-            y = self.slider_blue_low.value()
-            blue[blue >= x] = 255
-            blue[blue <= y] = 255
+            if window.get_filename():
+                img = cv2.imread(window.get_filename())
+                blue = img[:, :, 0]
+                green = img[:, :, 1]
+                red = img[:, :, 2]
+                print(blue)
+                x = self.slider_blue.value()
+                y = self.slider_blue_low.value()
+                blue[blue >= x] = 255
+                blue[blue <= y] = 255
 
-            x = self.slider_green.value()
-            y = self.slider_green_low.value()
-            green[green >= x] = 255
-            green[green <= y] = 255
+                x = self.slider_green.value()
+                y = self.slider_green_low.value()
+                green[green >= x] = 255
+                green[green <= y] = 255
 
-            x = self.slider_red.value()
-            y = self.slider_red_low.value()
-            red[red >= x] = 255
-            red[red <= y] = 255
+                x = self.slider_red.value()
+                y = self.slider_red_low.value()
+                red[red >= x] = 255
+                red[red <= y] = 255
 
-            im_dec = cv2.merge([blue, green, red])
-            im_dec = np.array(im_dec)
-            im_deca = im_dec.astype(int)
-            print(im_deca)
-            cv2.imwrite("tmp_files/tmp_color.png", im_deca)
+                im_dec = cv2.merge([blue, green, red])
+                im_dec = np.array(im_dec)
+                im_deca = im_dec.astype(int)
+                print(im_deca)
+                cv2.imwrite("tmp_files/tmp_color.png", im_deca)
 
-            pixmap = QPixmap("tmp_files/tmp_color.png")
+                pixmap = QPixmap("tmp_files/tmp_color.png")
+                pixmap_resized = pixmap.scaled(650, 650, QtCore.Qt.KeepAspectRatio)
+                self.photo.setPixmap(pixmap_resized)
+                self.photo.adjustSize()
+                plt.clf()
+
+    def inspect_graph_func(self):
+        if os.path.isfile("tmp_files/tmp_graph.png"):
+            graph = np.array(Image.open("tmp_files/tmp_graph.png"))
+            plt.imshow(graph)
+            plt.pause(100)
+
+    def save_graph_func(self):
+        print("a")
+
+    def generate_threshold(self):
+        i = 0
+        if window.get_filename():
+            img_grey = np.array(Image.open(window.get_filename()).convert('L'))
+            x = self.replace_grey.value()
+            y = self.new_grey.value()
+            z = self.pixels.value()
+            img_grey[img_grey <= x] = y
+            print(range(len(img_grey)))
+            for _ in range(len(img_grey)):
+                if i < len(img_grey):
+                    if img_grey[i, i] == y:
+                        for a in range(z):
+                            if i + z <= len(img_grey):
+                                img_grey[i + a, i - a] = y
+                            if (i - z) > 0:
+                                img_grey[i - a, i - a] = y
+                    i = i + 1
+
+            self.photo.clear()
+            plt.imshow(img_grey, cmap='gray')
+            plt.savefig('tmp_files/tmp_grey_threshold.png', dpi=1000)
+
+            pixmap = QPixmap("tmp_files/tmp_grey_threshold.png")
             pixmap_resized = pixmap.scaled(650, 650, QtCore.Qt.KeepAspectRatio)
             self.photo.setPixmap(pixmap_resized)
             self.photo.adjustSize()
             plt.clf()
+
+    def generate_graph(self):
+        if window.get_filename():
+            graph = Image.open(window.get_filename()).convert('L')
+            data = graph.histogram()
+            plt.plot(data)
+            plt.savefig("tmp_files/tmp_graph.png")
+
+            pixmap = QPixmap("tmp_files/tmp_graph.png")
+            pixmap_resized = pixmap.scaled(400, 300, QtCore.Qt.KeepAspectRatio)
+            self.graph.setPixmap(pixmap_resized)
+            self.graph.adjustSize()
+            plt.clf()
+
 
     def input_file(self):
         plt.clf()
@@ -363,7 +516,19 @@ class MainWindow(QMainWindow):
         print("a")
 
     def pop_out(self):
-        print("a")
+        if self.Man_select_2.isChecked():
+            if os.path.isfile("tmp_files/tmp_color.png"):
+                img_color = np.array(Image.open("tmp_files/tmp_color.png"))
+                plt.imshow(img_color)
+                plt.pause(100)
+                plt.imshow()
+
+        elif self.Man_select_1.isChecked():
+            if os.path.isfile("tmp_files/tmp_grey.png"):
+                img_grey = np.array(Image.open("tmp_files/tmp_grey.png"))
+                plt.imshow(img_grey)
+                plt.pause(100)
+                plt.imshow()
 
     def color(self):
         img = window.get_filename()
