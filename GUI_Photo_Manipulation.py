@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 
 import cv2
@@ -9,7 +10,7 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QFileDialog, \
-    QGroupBox, QWidget, QGridLayout, QRadioButton, QSlider, QTabWidget, QSpinBox
+    QGroupBox, QWidget, QGridLayout, QRadioButton, QSlider, QTabWidget, QSpinBox, QMessageBox
 
 
 class MainWindow(QMainWindow):
@@ -100,7 +101,7 @@ class MainWindow(QMainWindow):
 
         self.photo = QLabel(self)
 
-    # region tab 1
+        # region tab 1
         # region Grey_generate
         grey_group = QGroupBox(self)
         self.Man_select_1 = QRadioButton("Grey", self)
@@ -210,9 +211,9 @@ class MainWindow(QMainWindow):
         self.color_generate.clicked.connect(self.generate_color)
         self.color_generate.setFixedSize(150, 50)
         # endregion
-# endregion
+        # endregion
 
-    # region tab2
+        # region tab2
         # region Threshold settings
 
         tab2_title = QLabel("Threshold Replacement", self)
@@ -265,7 +266,7 @@ class MainWindow(QMainWindow):
         graph_group = QGroupBox(self)
         # endregion
 
-    # endregion
+        # endregion
         space = QLabel()
 
         layout.addWidget(space, 0, 0, 72, 0)  # left side
@@ -342,7 +343,6 @@ class MainWindow(QMainWindow):
         self.thresh.layout.addWidget(self.inspect_graph, 12, 1)
         self.thresh.layout.addWidget(self.save_graph, 12, 2)
         self.thresh.layout.addWidget(self.graph, 18, 1, 5, 4)
-
 
         # endregion
 
@@ -448,8 +448,14 @@ class MainWindow(QMainWindow):
             plt.pause(100)
 
     def save_graph_func(self):
-        print("a")
-
+        if window.get_filename():
+            tmp_out = "tmp_files/tmp_graph.png"
+            options = QFileDialog.Options()
+            options |= QFileDialog.DontUseNativeDialog
+            name, _ = QFileDialog.getSaveFileName(
+                self, "Save Image", "./out", "png")
+            if name:
+                shutil.move(tmp_out, '{}.png'.format(name))
     def generate_threshold(self):
         i = 0
         if window.get_filename():
@@ -457,23 +463,41 @@ class MainWindow(QMainWindow):
             x = self.replace_grey.value()
             y = self.new_grey.value()
             z = self.pixels.value()
+            img_grey.tolist()
             img_grey[img_grey <= x] = y
-            print(range(len(img_grey)))
-            for _ in range(len(img_grey)):
-                if i < len(img_grey):
-                    if img_grey[i, i] == y:
-                        for a in range(z):
-                            if i + z <= len(img_grey):
-                                img_grey[i + a, i - a] = y
-                            if (i - z) > 0:
-                                img_grey[i - a, i - a] = y
-                    i = i + 1
+            q = 0
+            while q <= len(img_grey):
+                w = 0
+                while w <= len(img_grey[1]):
+                    if q < len(img_grey) and w < len(img_grey[0]):
+                        if img_grey[q, w] == y:
+                            for a in range(z):
+                                if q + z <= len(img_grey) and w + z <= len(img_grey[1]):
+                                    for b in range(z):
+                                        img_grey[q + b, w - a] = y
+                                        img_grey[q + b, w + a] = y
+                                        img_grey[q + b, w] = y
+                                        img_grey[q, w + a] = y
+                                        img_grey[q - b, w - a] = y
+                                        img_grey[q - b, w + a] = y
+                                        img_grey[q - b, w] = y
+
+                                    for c in range(z):
+                                        img_grey[q - a, w + c] = y
+                                        img_grey[q + a, w + c] = y
+                                        img_grey[q, w + c] = y
+                                        img_grey[q + a, w] = y
+                                        img_grey[q - a, w - c] = y
+                                        img_grey[q + a, w - c] = y
+                                        img_grey[q, w - c] = y
+                    w = w + z
+                q = q + z
 
             self.photo.clear()
             plt.imshow(img_grey, cmap='gray')
-            plt.savefig('tmp_files/tmp_grey_threshold.png', dpi=1000)
+            plt.savefig('tmp_files/tmp_threshold.png', dpi=1000)
 
-            pixmap = QPixmap("tmp_files/tmp_grey_threshold.png")
+            pixmap = QPixmap("tmp_files/tmp_threshold.png")
             pixmap_resized = pixmap.scaled(650, 650, QtCore.Qt.KeepAspectRatio)
             self.photo.setPixmap(pixmap_resized)
             self.photo.adjustSize()
@@ -491,7 +515,6 @@ class MainWindow(QMainWindow):
             self.graph.setPixmap(pixmap_resized)
             self.graph.adjustSize()
             plt.clf()
-
 
     def input_file(self):
         plt.clf()
@@ -513,20 +536,41 @@ class MainWindow(QMainWindow):
             plt.clf()
 
     def save_image(self):
-        print("a")
+        if window.get_filename():
+            if self.color_tab.isVisible():
+                if self.Man_select_2.isChecked():
+                    tmp_out = "tmp_files/tmp_color.png"
+                elif self.Man_select_1.isChecked():
+                    tmp_out = "tmp_files/tmp_grey.png"
+            elif self.thresh.isVisible():
+                tmp_out = "tmp_files/tmp_threshold.png"
+
+            options = QFileDialog.Options()
+            options |= QFileDialog.DontUseNativeDialog
+            name, _ = QFileDialog.getSaveFileName(
+                self, "Save Image", "./out", "png")
+            if name:
+                shutil.move(tmp_out, '{}.png'.format(name))
 
     def pop_out(self):
-        if self.Man_select_2.isChecked():
-            if os.path.isfile("tmp_files/tmp_color.png"):
-                img_color = np.array(Image.open("tmp_files/tmp_color.png"))
-                plt.imshow(img_color)
-                plt.pause(100)
-                plt.imshow()
+        if self.color_tab.isVisible():
+            if self.Man_select_2.isChecked():
+                if os.path.isfile("tmp_files/tmp_color.png"):
+                    img_color = np.array(Image.open("tmp_files/tmp_color.png"))
+                    plt.imshow(img_color)
+                    plt.pause(100)
+                    plt.imshow()
 
-        elif self.Man_select_1.isChecked():
-            if os.path.isfile("tmp_files/tmp_grey.png"):
-                img_grey = np.array(Image.open("tmp_files/tmp_grey.png"))
-                plt.imshow(img_grey)
+            elif self.Man_select_1.isChecked():
+                if os.path.isfile("tmp_files/tmp_grey.png"):
+                    img_grey = np.array(Image.open("tmp_files/tmp_grey.png"))
+                    plt.imshow(img_grey)
+                    plt.pause(100)
+                    plt.imshow()
+        elif self.thresh.isVisible():
+            if os.path.isfile("tmp_files/tmp_threshold.png"):
+                img_thresh = np.array(Image.open("tmp_files/tmp_threshold.png"))
+                plt.imshow(img_thresh)
                 plt.pause(100)
                 plt.imshow()
 
