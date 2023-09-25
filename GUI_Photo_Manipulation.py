@@ -217,6 +217,7 @@ class MainWindow(QMainWindow):
         # region Threshold settings
 
         tab2_title = QLabel("Threshold Replacement", self)
+        tab2_title.setStyleSheet('color: black;font-size: 16pt;')
         value_replace_title = QLabel("Value to Replace", self)
         new_value_title = QLabel("New Value", self)
         self.num_replace = QLabel("0", self)
@@ -272,13 +273,13 @@ class MainWindow(QMainWindow):
         layout.addWidget(space, 0, 0, 72, 0)  # left side
         layout.addWidget(space, 0, 0, 0, 96)  # top
 
-        layout.addWidget(bottom_text, 70, 80, 2, 20)
-        layout.addWidget(logo_img, 1, 0, 2, 20)
-        layout.addWidget(logo, 2, 0, 2, 20)
+        layout.addWidget(bottom_text, 70, 80, 2, 16)
+        layout.addWidget(logo_img, 1, 0, 10, 20)
+        layout.addWidget(logo, 4, 1, 10, 20)
 
         layout.addWidget(search, 0, 25, 2, 15)
-        layout.addWidget(pop_window, 1, 25, 3, 15)
-        layout.addWidget(save, 2, 25, 5, 15)
+        layout.addWidget(pop_window, 3, 25, 2, 15)
+        layout.addWidget(save, 8, 25, 2, 15)
 
         layout.addWidget(self.photo, 2, 1, 72, 45, Qt.AlignCenter)
 
@@ -325,28 +326,28 @@ class MainWindow(QMainWindow):
         # endregion
 
         # region tab2 layout
-        self.thresh.layout.addWidget(thresh_group, 1, 1, 8, 6)
-        self.thresh.layout.addWidget(graph_group, 10, 1, 17, 6)
-        self.thresh.layout.addWidget(tab2_title, 1, 1)
-        self.thresh.layout.addWidget(value_replace_title, 3, 1)
-        self.thresh.layout.addWidget(new_value_title, 5, 1)
-        self.thresh.layout.addWidget(self.num_replace, 3, 5)
-        self.thresh.layout.addWidget(self.num_new, 5, 5)
+        self.thresh.layout.addWidget(thresh_group, 0, 0, 9, 7)
+        self.thresh.layout.addWidget(graph_group, 10, 0, 17, 6)
+        self.thresh.layout.addWidget(tab2_title, 1, 1, 2, 8)
+        self.thresh.layout.addWidget(value_replace_title, 3, 1, 1, 8)
+        self.thresh.layout.addWidget(new_value_title, 5, 1, 1, 8)
+        self.thresh.layout.addWidget(self.num_replace, 3, 5, 1, 3)
+        self.thresh.layout.addWidget(self.num_new, 5, 5, 1, 3)
         self.thresh.layout.addWidget(num_pixels, 7, 1)
         self.thresh.layout.addWidget(self.pixels, 7, 5)
 
-        self.thresh.layout.addWidget(self.replace_grey, 4, 1)
-        self.thresh.layout.addWidget(self.new_grey, 6, 1)
+        self.thresh.layout.addWidget(self.replace_grey, 4, 1, 1, 6)
+        self.thresh.layout.addWidget(self.new_grey, 6, 1, 1, 6)
         self.thresh.layout.addWidget(self.run_threshold, 8, 1)
 
         self.thresh.layout.addWidget(self.gen_graph, 10, 1)
         self.thresh.layout.addWidget(self.inspect_graph, 12, 1)
         self.thresh.layout.addWidget(self.save_graph, 12, 2)
-        self.thresh.layout.addWidget(self.graph, 18, 1, 5, 4)
+        self.thresh.layout.addWidget(self.graph, 18, 1, 5, 5)
 
         # endregion
 
-        layout.addWidget(self.tabs, 0, 40, 70, 65)
+        layout.addWidget(self.tabs, 0, 70, 70, 26)
         self.color_tab.setLayout(self.color_tab.layout)
         self.thresh.setLayout(self.thresh.layout)
 
