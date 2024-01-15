@@ -1,5 +1,4 @@
 # Acadia Photo Manipulation #
-### Fall 2024 ###
 
 ## Summary ##
 This program is being produced for the purposes of manipulating pixel rgb values through threshold removal and alterations.
